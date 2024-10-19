@@ -55,11 +55,11 @@ class MainActivity : AppCompatActivity() {
 
 
         // 추천 버튼 클릭 시 ChooseImageActivity로 이동
-//        val recommendButton: Button = findViewById(R.id.recommendButton)
-//        recommendButton.setOnClickListener {
-//            val intent = Intent(this, ChooseImageActivity::class.java)
-//            startActivity(intent)
-//        }
+        val recommendButton: Button = findViewById(R.id.recommendButton)
+        recommendButton.setOnClickListener {
+            val intent = Intent(this, ChooseImageActivity::class.java)
+            startActivity(intent)
+        }
 
         //  레이아웃이 시스템 영역과 겹치지 않도록 패딩 설정
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
