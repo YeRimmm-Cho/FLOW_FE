@@ -80,4 +80,12 @@ dependencies {
 
     // ShapeableImageView (이미지 모서리 둥글게)
     implementation("com.google.android.material:material:1.8.0")
+
+    // LiveKit 리얼타임
+    implementation("io.livekit:livekit-android:2.8.1")
+
+    // 레트로핏 의존성 (JSON 변환을 위한 GSON 컨버터)
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
 }
