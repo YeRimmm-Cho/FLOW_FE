@@ -25,12 +25,16 @@ class ChooseImageActivity : AppCompatActivity() {
         val ingredientPhotoButton = findViewById<LinearLayout>(R.id.ingredientPhotoButton)
         ingredientPhotoButton.setOnClickListener {
             // TODO: 재료 사진을 추가하는 액티비티로 이동
+            val intent = Intent(this, UploadActivity::class.java)
+            startActivity(intent)
         }
 
         // 온라인 영수증 버튼 클릭 이벤트 설정
         val onlineReceiptButton = findViewById<LinearLayout>(R.id.onlineReceiptButton)
         onlineReceiptButton.setOnClickListener {
             // TODO: 온라인 영수증 사진을 처리하는 액티비티로 이동
+            val intent = Intent(this, UploadActivity::class.java)
+            startActivity(intent)
         }
     }
 }
