@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    id("kotlin-parcelize") // 추가: Parcelize 플러그인
 }
 
 android {
@@ -82,10 +83,13 @@ dependencies {
     implementation("com.google.android.material:material:1.8.0")
 
     // LiveKit 리얼타임
-    implementation("io.livekit:livekit-android:2.8.1")
+    implementation("io.livekit:livekit-android:2.9.0")
+
 
     // 레트로핏 의존성 (JSON 변환을 위한 GSON 컨버터)
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+
 
 }

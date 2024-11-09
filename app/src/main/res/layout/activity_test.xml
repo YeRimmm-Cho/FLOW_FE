@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp">
+
+    <!-- 연결 상태 텍스트뷰 -->
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Connecting to LiveKit..."
+        android:textSize="18sp"
+        android:layout_marginBottom="20dp" />
+
+    <!-- 토큰 테스트 버튼 -->
+    <Button
+        android:id="@+id/tokenTestButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Test Token and Connect" />
+
+    <!-- 녹음 시작 버튼 -->
+    <Button
+        android:id="@+id/recordButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start Recording"
+        android:layout_marginTop="16dp" />
+
+    <!-- 오디오 재생 버튼 -->
+    <Button
+        android:id="@+id/playButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Play Received Audio"
+        android:layout_marginTop="16dp" />
+</LinearLayout>
