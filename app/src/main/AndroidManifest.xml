@@ -23,22 +23,27 @@
         android:theme="@style/Theme.Martfia"
         tools:targetApi="31">
         <activity
+            android:name=".CheckIngredientActivity"
+            android:exported="false" />
+        <!-- MainActivity를 메인 액티비티로 설정 -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!-- TestActivity를 일반 액티비티로 설정 -->
+        <activity
+            android:name=".TestActivity"
+            android:exported="true" />
+        <activity
             android:name=".UploadActivity"
             android:exported="false" />
         <activity
             android:name=".ChooseImageActivity"
             android:exported="false" />
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.Martfia">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
     </application>
 
 </manifest>

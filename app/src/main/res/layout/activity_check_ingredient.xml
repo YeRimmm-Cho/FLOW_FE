@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+>
+
+    <!-- 뒤로 가기 버튼 -->
+    <ImageView
+        android:id="@+id/backButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="뒤로 가기"
+        app:srcCompat="@drawable/ic_arrow_back"
+        android:layout_margin="16dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <!-- 타이틀 아이콘 -->
+        <ImageView
+            android:id="@+id/titleIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="재료 아이콘"
+            app:srcCompat="@drawable/ic_eggbasket"
+            android:layout_marginEnd="8dp"/>
+
+        <!-- 타이틀 텍스트 -->
+        <TextView
+            android:id="@+id/titleTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="인식된 나의 재료"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/poppins_bold"
+            android:textColor="@android:color/black"/>
+    </LinearLayout>
+
+    <!-- RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/ingredientRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="30dp" />
+
+    <!-- 하단 버튼 -->
+    <Button
+        android:id="@+id/recognizeButton"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/button_rec_grey"
+        android:text="레시피 추천 받기"
+        android:textSize="20sp"
+        android:textColor="@android:color/black"
+        android:layout_marginStart="25dp"
+        android:layout_marginEnd="25dp"
+        android:layout_marginBottom="100dp"
+        android:layout_marginTop="30dp"/>
+</LinearLayout>
