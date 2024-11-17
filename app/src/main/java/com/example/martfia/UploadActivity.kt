@@ -17,13 +17,9 @@ import androidx.core.content.ContextCompat
 import com.example.martfia.service.MartfiaRetrofitClient
 import com.example.martfia.service.IngredientRecognitionService
 import com.example.martfia.model.response.IngredientRecognitionResponse
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.io.File
 
 class UploadActivity : AppCompatActivity() {
 
@@ -62,7 +58,7 @@ class UploadActivity : AppCompatActivity() {
         recognizeButton.setOnClickListener {
             if (selectedImageUri != null) {
                 Log.d("UploadActivity", "Recognizing ingredients...")
-                recognizeIngredients() // 재료 인식 API (인식된 재료 업데이트) 호출
+                recognizeIngredients() // 재료 인식 API 호출
             } else {
                 Toast.makeText(this, "먼저 이미지를 업로드하세요.", Toast.LENGTH_SHORT).show()
             }
@@ -126,21 +122,10 @@ class UploadActivity : AppCompatActivity() {
             return
         }
 
-        val filePath = selectedImageUri?.let { uriToFilePath(it) }
-        if (filePath == null) {
-            Toast.makeText(this, "이미지 경로를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val imageFile = File(filePath)
-        val photo = MultipartBody.Part.createFormData(
-            "photo",
-            imageFile.name,
-            RequestBody.create("image/*".toMediaTypeOrNull(), imageFile)
-        )
+        val imageUrl = selectedImageUri.toString() // 이미지 URI를 String으로 변환하여 URL로 사용
 
         // 인식된 재료 업데이트 API 호출
-        ingredientService.recognizeIngredients(photo).enqueue(object : Callback<IngredientRecognitionResponse> {
+        ingredientService.recognizeIngredients(imageUrl).enqueue(object : Callback<IngredientRecognitionResponse> {
             override fun onResponse(call: Call<IngredientRecognitionResponse>, response: Response<IngredientRecognitionResponse>) {
                 if (response.isSuccessful && response.body() != null) {
                     val ingredients = ArrayList(response.body()!!.ingredients)
@@ -161,17 +146,6 @@ class UploadActivity : AppCompatActivity() {
                 Toast.makeText(this@UploadActivity, "서버와 통신에 실패했습니다.", Toast.LENGTH_SHORT).show()
             }
         })
-    }
-
-    private fun uriToFilePath(uri: Uri): String? {
-        val projection = arrayOf(MediaStore.Images.Media.DATA)
-        val cursor = contentResolver.query(uri, projection, null, null, null)
-        cursor?.use {
-            if (it.moveToFirst()) {
-                return it.getString(it.getColumnIndexOrThrow(MediaStore.Images.Media.DATA))
-            }
-        }
-        return null
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {

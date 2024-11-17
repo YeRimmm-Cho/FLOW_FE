@@ -1,7 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="?android:attr/selectableItemBackground"
+    android:layout_marginBottom="8dp">
+
+    <!-- 재료 이름을 표시하는 TextView -->
+    <TextView
     android:id="@+id/ingredientTextView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="20dp"
-    android:textSize="16sp" />
+    android:textSize="16sp"
+    android:padding="25dp"
+    android:text="Ingredient Name" /> <!-- 기본 텍스트 값 -->
+
+    </LinearLayout>

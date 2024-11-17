@@ -32,12 +32,12 @@ class RecommendedRecipeAdapter(
 
         // 이미지 설정 (Glide 라이브러리를 이용해 URL로부터 이미지 로드)
         Glide.with(holder.itemView.context)
-            .load(recipe.imageUrl)
+            .load(recipe.photo)  // photo로 변경
             .into(holder.recipeImage)
 
         // 레시피 이름 및 소요 시간 설정
-        holder.recipeName.text = recipe.name
-        holder.recipeTime.text = recipe.time
+        holder.recipeName.text = recipe.foodName
+        holder.recipeTime.text = recipe.cookingTime
 
         // 레시피 클릭 시 콜백 호출
         holder.itemView.setOnClickListener {
