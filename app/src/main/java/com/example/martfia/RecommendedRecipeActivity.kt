@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.martfia.adapter.RecommendedRecipeAdapter
 import com.example.martfia.model.RecommendedRecipe
+import com.example.martfia.model.response.RecommendedRecipeResponse
 import com.example.martfia.service.MartfiaRetrofitClient
 import com.example.martfia.service.RecommendedRecipeService
 import retrofit2.Call
@@ -33,8 +34,8 @@ class RecommendedRecipeActivity : AppCompatActivity() {
 
         // 기본적인 레시피 정보 설정
         val foodName = "Sample Food Name" // 예시 음식
-        val cookingTime = "30" // 예시로 30분으로 설정 (실제 시간으로 수정 가능)
-        val photo = "samplePhotoUrl" // 예시 URL (실제 URL로 수정 가능)
+        val cookingTime = "30" // 예시로 30분으로 설정
+        val photo = "samplePhotoUrl" // 예시 URL
 
         // API 호출하여 추천 레시피 가져오기
         val recommendedRecipeService = MartfiaRetrofitClient.createService(RecommendedRecipeService::class.java)
@@ -44,13 +45,13 @@ class RecommendedRecipeActivity : AppCompatActivity() {
             photo = photo,
             foodName = foodName,
             cookingTime = cookingTime
-        ).enqueue(object : Callback<List<RecommendedRecipe>> {
+        ).enqueue(object : Callback<RecommendedRecipeResponse> {
             override fun onResponse(
-                call: Call<List<RecommendedRecipe>>,
-                response: Response<List<RecommendedRecipe>>
+                call: Call<RecommendedRecipeResponse>,
+                response: Response<RecommendedRecipeResponse>
             ) {
                 if (response.isSuccessful && response.body() != null) {
-                    val recommendedRecipes = response.body()!!
+                    val recommendedRecipes = response.body()!!.recipes
 
                     // 어댑터 설정
                     val adapter = RecommendedRecipeAdapter(recommendedRecipes) { selectedRecipe ->
@@ -63,7 +64,7 @@ class RecommendedRecipeActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onFailure(call: Call<List<RecommendedRecipe>>, t: Throwable) {
+            override fun onFailure(call: Call<RecommendedRecipeResponse>, t: Throwable) {
                 Toast.makeText(this@RecommendedRecipeActivity, "서버와의 통신에 실패했습니다.", Toast.LENGTH_SHORT).show()
             }
         })
