@@ -4,7 +4,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object MartfiaRetrofitClient {
-    private const val BASE_URL = "https://api.martfia.com/"  // 실제 API의 기본 URL로 변경하세요
+    private const val BASE_URL = "https://api.martfia.com/"  // 실제 API의 기본 URL로 변경
 
     // Retrofit 인스턴스를 하나만 생성하여 모든 서비스에서 재사용하도록 설정
     private val retrofit: Retrofit by lazy {

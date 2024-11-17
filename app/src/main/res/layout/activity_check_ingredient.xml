@@ -52,7 +52,7 @@
 
     <!-- 하단 버튼 -->
     <Button
-        android:id="@+id/recognizeButton"
+        android:id="@+id/recommendRecipeButton"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@drawable/button_rec_grey"

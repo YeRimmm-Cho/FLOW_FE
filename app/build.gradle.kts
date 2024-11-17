@@ -85,6 +85,9 @@ dependencies {
     // LiveKit 리얼타임
     implementation("io.livekit:livekit-android:2.9.0")
 
+    // OkHttp 라이브러리 추가
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
 
     // 레트로핏 의존성 (JSON 변환을 위한 GSON 컨버터)
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
