@@ -15,13 +15,6 @@
         android:textSize="18sp"
         android:layout_marginBottom="20dp" />
 
-    <!-- 토큰 테스트 버튼 -->
-    <Button
-        android:id="@+id/tokenTestButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Test Token and Connect" />
-
     <!--라이브킷 룸 이벤트 버튼-->
     <Button
         android:id="@+id/connectButton"
