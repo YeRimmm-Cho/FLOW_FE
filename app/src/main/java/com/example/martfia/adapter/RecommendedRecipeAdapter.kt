@@ -1,5 +1,6 @@
 package com.example.martfia.adapter
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.martfia.R
+import com.example.martfia.RecipeDetailActivity
 import com.example.martfia.model.RecommendedRecipe
 
 class RecommendedRecipeAdapter(
@@ -41,10 +43,14 @@ class RecommendedRecipeAdapter(
         holder.recipeName.text = recipe.foodName
         holder.recipeTime.text = recipe.cookingTime
 
-        // 레시피 클릭 시 콜백 호출
+        // 레시피 클릭 시 레시피 상세 화면으로 이동
         holder.itemView.setOnClickListener {
-            onRecipeClick(recipe)
+            val context = holder.itemView.context
+            val intent = Intent(context, RecipeDetailActivity::class.java)
+            intent.putExtra("recipe_id", recipe.id) // 레시피 ID 전달
+            context.startActivity(intent)
         }
+
     }
 
     override fun getItemCount() = recipeList.size
