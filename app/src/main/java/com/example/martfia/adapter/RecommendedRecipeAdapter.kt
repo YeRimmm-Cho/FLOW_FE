@@ -30,9 +30,11 @@ class RecommendedRecipeAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val recipe = recipeList[position]
 
-        // 이미지 설정 (Glide 라이브러리를 이용해 URL로부터 이미지 로드)
+        // 이미지 설정
         Glide.with(holder.itemView.context)
-            .load(recipe.photo)  // photo로 변경
+            .load(recipe.image)
+            .centerCrop()
+            .placeholder(R.drawable.img_cooking) // 기본 이미지 설정
             .into(holder.recipeImage)
 
         // 레시피 이름 및 소요 시간 설정
