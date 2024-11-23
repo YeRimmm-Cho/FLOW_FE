@@ -7,10 +7,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.martfia.adapter.RecommendedRecipeAdapter
+import com.example.martfia.model.Ingredient
 import com.example.martfia.model.RecommendedRecipe
+import com.example.martfia.model.request.RecommendedRecipeRequest
 import com.example.martfia.model.response.RecommendedRecipeResponse
 import com.example.martfia.service.MartfiaRetrofitClient
 import com.example.martfia.service.RecommendedRecipeService
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -21,31 +25,45 @@ class RecommendedRecipeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_recommended_recipe)
 
+        // 뒤로가기 버튼 설정
         val backButton = findViewById<ImageView>(R.id.backButton)
         backButton.setOnClickListener {
             finish()
         }
 
+        // RecyclerView 설정
         val recipeRecyclerView = findViewById<RecyclerView>(R.id.recommendedRecipeRecyclerView)
         recipeRecyclerView.layoutManager = LinearLayoutManager(this)
 
+        // ChipGroup 설정
+        val chipGroup = findViewById<ChipGroup>(R.id.ingredientChipGroup)
+
         // Intent로부터 재료 리스트 받기
-        val ingredients = intent.getStringArrayListExtra("ingredient_list") ?: arrayListOf()
+        val ingredients = intent.getParcelableArrayListExtra<Ingredient>("saved_ingredients") ?: arrayListOf()
 
-        // 기본적인 레시피 정보 설정
-        val foodName = "Sample Food Name" // 예시 음식
-        val cookingTime = "30" // 예시로 30분으로 설정
-        val photo = "samplePhotoUrl" // 예시 URL
-
-        // API 호출하여 추천 레시피 가져오기
-        val recommendedRecipeService = MartfiaRetrofitClient.createService(RecommendedRecipeService::class.java)
+        // ChipGroup에 Chip 추가
+        for (ingredient in ingredients) {
+            val chip = Chip(this)
+            chip.text = ingredient.name // 재료 이름 설정
+            chip.isClickable = false   // 클릭 비활성화
+            chip.isCheckable = false   // 선택 비활성화
+            chipGroup.addView(chip)    // ChipGroup에 추가
+        }
 
         // API 호출
-        recommendedRecipeService.getRecommendedRecipes(
-            photo = photo,
-            foodName = foodName,
-            cookingTime = cookingTime
-        ).enqueue(object : Callback<RecommendedRecipeResponse> {
+        fetchRecommendedRecipes(ingredients, recipeRecyclerView)
+    }
+
+    private fun fetchRecommendedRecipes(ingredients: List<Ingredient>, recipeRecyclerView: RecyclerView) {
+        val recommendedRecipeService = MartfiaRetrofitClient.createService(RecommendedRecipeService::class.java)
+
+        // 요청 데이터 생성
+        val request = RecommendedRecipeRequest(
+            ingredients = ingredients.map { it.name } // 재료 이름 리스트로 변환
+        )
+
+        // Retrofit API 호출
+        recommendedRecipeService.getRecommendedRecipes(request).enqueue(object : Callback<RecommendedRecipeResponse> {
             override fun onResponse(
                 call: Call<RecommendedRecipeResponse>,
                 response: Response<RecommendedRecipeResponse>
