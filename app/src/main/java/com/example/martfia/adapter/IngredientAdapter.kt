@@ -10,11 +10,15 @@ import com.bumptech.glide.Glide
 import com.example.martfia.R
 import com.example.martfia.model.Ingredient
 
-class IngredientAdapter(private val ingredientList: List<Ingredient>) : RecyclerView.Adapter<IngredientAdapter.ViewHolder>() {
+class IngredientAdapter(
+    private val ingredientList: MutableList<Ingredient>,
+    private val onDeleteClick: (Ingredient) -> Unit // 삭제 버튼 클릭 처리
+) : RecyclerView.Adapter<IngredientAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val ingredientTextView: TextView = view.findViewById(R.id.ingredientTextView)
         val ingredientImageView: ImageView = view.findViewById(R.id.ingredientImageView)
+        val deleteButton: ImageView = view.findViewById(R.id.deleteButton)
         val dividerView: View = view.findViewById(R.id.dividerView)
     }
 
@@ -38,7 +42,12 @@ class IngredientAdapter(private val ingredientList: List<Ingredient>) : Recycler
             .error(R.drawable.ic_vege) // 로드 실패 시 이미지
             .into(holder.ingredientImageView)
 
-        // 마지막 항목인지 확인
+        // 삭제 버튼 클릭 이벤트 처리
+        holder.deleteButton.setOnClickListener {
+            onDeleteClick(ingredient)
+        }
+
+        // 마지막 항목인지 확인 후 구분선 처리
         if (position == ingredientList.size - 1) {
             holder.dividerView.visibility = View.GONE // 마지막 항목은 구분선 숨김
         } else {
