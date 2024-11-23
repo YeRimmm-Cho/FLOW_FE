@@ -16,7 +16,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.martfia.service.MartfiaRetrofitClient
 import com.example.martfia.service.IngredientRecognitionService
-import com.example.martfia.model.response.IngredientRecognitionResponse
+import com.example.martfia.model.request.ImageUploadRequest
+import com.example.martfia.model.request.ReceiptUploadRequest
+import com.example.martfia.model.response.ImageUploadResponse
+import com.example.martfia.model.Ingredient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -30,8 +33,7 @@ class UploadActivity : AppCompatActivity() {
     }
 
     private var selectedImageUri: Uri? = null
-    private var uploadType: String? = null // "food (재료)" 또는 "receipt (온라인 영수증)" 값 저장
-
+    private var uploadType: String? = null // "food" 또는 "receipt"
     private val ingredientService: IngredientRecognitionService by lazy {
         MartfiaRetrofitClient.createService(IngredientRecognitionService::class.java)
     }
@@ -41,7 +43,6 @@ class UploadActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_upload)
 
-        // 전달받은 업로드 타입 설정
         uploadType = intent.getStringExtra("uploadType")
         Log.d("UploadActivity", "Upload type: $uploadType")
 
@@ -50,15 +51,13 @@ class UploadActivity : AppCompatActivity() {
 
         val uploadContainer = findViewById<ImageView>(R.id.uploadContainer)
         uploadContainer.setOnClickListener {
-            Log.d("UploadActivity", "UploadContainer clicked")
             checkPermissions()
         }
 
         val recognizeButton = findViewById<Button>(R.id.recognizeButton)
         recognizeButton.setOnClickListener {
             if (selectedImageUri != null) {
-                Log.d("UploadActivity", "Recognizing ingredients...")
-                recognizeIngredients() // 재료 인식 API 호출
+                recognizeIngredients() // API 호출
             } else {
                 Toast.makeText(this, "먼저 이미지를 업로드하세요.", Toast.LENGTH_SHORT).show()
             }
@@ -68,10 +67,8 @@ class UploadActivity : AppCompatActivity() {
     private fun checkPermissions() {
         val permissions = arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE)
         if (permissions.all { ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED }) {
-            Log.d("UploadActivity", "Permissions already granted")
             showImagePickerDialog()
         } else {
-            Log.d("UploadActivity", "Requesting permissions")
             ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSIONS)
         }
     }
@@ -109,7 +106,6 @@ class UploadActivity : AppCompatActivity() {
             when (requestCode) {
                 REQUEST_IMAGE_CAPTURE, REQUEST_IMAGE_PICK -> {
                     selectedImageUri = data?.data
-                    Log.d("UploadActivity", "Image selected: $selectedImageUri")
                     findViewById<ImageView>(R.id.uploadContainer).setImageURI(selectedImageUri)
                 }
             }
@@ -122,39 +118,65 @@ class UploadActivity : AppCompatActivity() {
             return
         }
 
-        val imageUrl = selectedImageUri.toString() // 이미지 URI를 String으로 변환하여 URL로 사용
+        val imageUrl = selectedImageUri.toString() // URI를 문자열로 변환
 
-        // 인식된 재료 업데이트 API 호출
-        ingredientService.recognizeIngredients(imageUrl).enqueue(object : Callback<IngredientRecognitionResponse> {
-            override fun onResponse(call: Call<IngredientRecognitionResponse>, response: Response<IngredientRecognitionResponse>) {
-                if (response.isSuccessful && response.body() != null) {
-                    val ingredients = ArrayList(response.body()!!.ingredients)
-                    Log.d("UploadActivity", "Ingredients recognized: $ingredients")
+        when (uploadType) {
+            "food" -> {
+                val request = ImageUploadRequest(image_url = imageUrl)
+                ingredientService.uploadImage(request).enqueue(object : Callback<ImageUploadResponse> {
+                    override fun onResponse(call: Call<ImageUploadResponse>, response: Response<ImageUploadResponse>) {
+                        handleApiResponse(response)
+                    }
 
-                    // 재료 리스트를 전달하며 다음 화면인 CheckIngredientActivity로 이동
-                    val intent = Intent(this@UploadActivity, CheckIngredientActivity::class.java)
-                    intent.putStringArrayListExtra("ingredient_list", ingredients)
-                    startActivity(intent)
-                } else {
-                    Log.d("UploadActivity", "Failed to recognize ingredients: ${response.errorBody()?.string()}")
-                    Toast.makeText(this@UploadActivity, "재료 인식에 실패했습니다.", Toast.LENGTH_SHORT).show()
-                }
+                    override fun onFailure(call: Call<ImageUploadResponse>, t: Throwable) {
+                        handleApiFailure(t)
+                    }
+                })
             }
 
-            override fun onFailure(call: Call<IngredientRecognitionResponse>, t: Throwable) {
-                Log.e("UploadActivity", "Server communication failed", t)
-                Toast.makeText(this@UploadActivity, "서버와 통신에 실패했습니다.", Toast.LENGTH_SHORT).show()
+            "receipt" -> {
+                val request = ReceiptUploadRequest(receipt_url = imageUrl)
+                ingredientService.uploadReceipt(request).enqueue(object : Callback<ImageUploadResponse> {
+                    override fun onResponse(call: Call<ImageUploadResponse>, response: Response<ImageUploadResponse>) {
+                        handleApiResponse(response)
+                    }
+
+                    override fun onFailure(call: Call<ImageUploadResponse>, t: Throwable) {
+                        handleApiFailure(t)
+                    }
+                })
             }
-        })
+        }
+    }
+
+    private fun handleApiResponse(response: Response<ImageUploadResponse>) {
+        if (response.isSuccessful && response.body() != null) {
+            val savedIngredients = response.body()!!.saved_ingredients.map {
+                Ingredient(
+                    image_url = it.image_url,
+                    name = it.name
+                )
+            }
+            val intent = Intent(this, CheckIngredientActivity::class.java).apply {
+                putParcelableArrayListExtra("saved_ingredients", ArrayList(savedIngredients))
+            }
+            startActivity(intent)
+        } else {
+            Log.e("UploadActivity", "Error: ${response.errorBody()?.string()}")
+            Toast.makeText(this, "재료 인식에 실패했습니다.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun handleApiFailure(t: Throwable) {
+        Log.e("UploadActivity", "Server communication failed", t)
+        Toast.makeText(this, "서버와 통신에 실패했습니다.", Toast.LENGTH_SHORT).show()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_PERMISSIONS && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
-            Log.d("UploadActivity", "Permissions granted")
             showImagePickerDialog()
         } else {
-            Log.d("UploadActivity", "Permissions denied")
             Toast.makeText(this, "권한이 필요합니다.", Toast.LENGTH_SHORT).show()
         }
     }

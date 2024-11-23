@@ -26,7 +26,6 @@ class TestActivity : AppCompatActivity() {
 
     private lateinit var room: Room
     private lateinit var statusText: TextView
-    private lateinit var tokenTestButton: Button
     private lateinit var connectButton: Button
     private lateinit var audioManager: AudioManager
 
@@ -41,7 +40,6 @@ class TestActivity : AppCompatActivity() {
 
         // UI 요소 초기화
         statusText = findViewById(R.id.statusText)
-        tokenTestButton = findViewById(R.id.tokenTestButton)
         connectButton = findViewById(R.id.connectButton)
 
         // AudioManager 초기화
@@ -50,23 +48,16 @@ class TestActivity : AppCompatActivity() {
         // 권한 요청
         checkAndRequestPermissions()
 
-        // LiveKit 연결 버튼 클릭 이벤트
-        tokenTestButton.setOnClickListener {
-            if (arePermissionsGranted()) {
-                Log.d(TAG, "권한 승인됨. LiveKit 연결 시도 시작")
-                statusText.text = "LiveKit에 연결 중입니다..."
-                connectToLiveKitRoom()
-            } else {
-                Log.d(TAG, "권한이 부족합니다.")
-                statusText.text = "권한이 필요합니다. 설정에서 권한을 허용해주세요."
-                showPermissionDeniedDialog()
-            }
-        }
-
-        // LiveKit 룸 입장 버튼 클릭 이벤트
+        // CONNECT 버튼 클릭 이벤트
         connectButton.setOnClickListener {
-            statusText.text = "LiveKit 룸에 입장 중..."
-            connectToLiveKitRoom() // LiveKit에 연결
+            lifecycleScope.launch {
+                if (arePermissionsGranted()) {
+                    connectToLiveKitRoom()
+                } else {
+                    statusText.text = "권한이 필요합니다. 설정에서 권한을 허용해주세요."
+                    showPermissionDeniedDialog()
+                }
+            }
         }
     }
 
@@ -129,75 +120,75 @@ class TestActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun connectToLiveKitRoom() {
+    private suspend fun connectToLiveKitRoom() {
         val wsUrl = "wss://donggukmartfia-4jdthdl3.livekit.cloud"
-        val tokenResponse = """{ "room":"default-room","token":"토큰" }"""
+        val tokenResponse = """{ "room":"","token":"" }"""
 
-        lifecycleScope.launch {
-            try {
-                val jsonResponse = JSONObject(tokenResponse)
-                val token = jsonResponse.getString("token")
-                val roomName = jsonResponse.getString("room")
+        try {
+            val jsonResponse = JSONObject(tokenResponse)
+            val token = jsonResponse.getString("token")
+            val roomName = jsonResponse.getString("room")
 
-                Log.d(TAG, "LiveKit 연결 시작 - Room: $roomName, Token: $token")
+            Log.d(TAG, "룸 연결 시작 - Room: $roomName")
+
+            if (!::room.isInitialized) {
                 room = LiveKit.create(applicationContext)
                 Log.d(TAG, "LiveKit 객체 생성 완료")
-
-                // LiveKit 이벤트 처리
-                room.events.collect { event ->
-                    try {
-                        Log.d(TAG, "LiveKit 이벤트 발생: $event")
-
-                        when (event) {
-                            is RoomEvent.Connected -> {
-                                Log.d(TAG, "LiveKit 방에 성공적으로 연결되었습니다: ${event.room}")
-                                statusText.text = "방에 성공적으로 연결되었습니다: ${event.room}"
-                            }
-                            is RoomEvent.Disconnected -> {
-                                Log.e(TAG, "LiveKit 방 연결 해제: ${event.reason}")
-                                statusText.text = "방 연결 해제: ${event.reason}"
-                            }
-                            is RoomEvent.TrackSubscribed -> {
-                                Log.d(TAG, "오디오 트랙 구독됨")
-                                statusText.text = "오디오 트랙이 활성화되었습니다."
-                                handleAudioTrack(event.track as AudioTrack)
-                            }
-                            else -> {
-                                Log.d(TAG, "Unhandled 이벤트: $event")
-                            }
-                        }
-                    } catch (e: Exception) {
-                        Log.e(TAG, "LiveKit 이벤트 처리 중 오류 발생: ${e.message}", e)
-                    }
-                }
-
-                room.connect(wsUrl, token)
-                Log.d(TAG, "LiveKit connect() 호출 완료")
-                statusText.text = "방에 연결 시도 중..."
-            } catch (e: Exception) {
-                Log.e(TAG, "LiveKit 연결 실패: ${e.message}", e)
-                statusText.text = "연결 실패: ${e.message}"
             }
-        }
-    }
 
-    private fun handleAudioTrack(audioTrack: AudioTrack) {
-        try {
-            audioTrack.start()
-            setSpeakerMode(true)
-            Log.d(TAG, "오디오 트랙 시작됨.")
+            room.connect(wsUrl, token)
+            Log.d(TAG, "룸 연결 요청 완료.")
+            statusText.text = "룸 연결 시도 중..."
+
+            room.events.collect { event ->
+                when (event) {
+                    is RoomEvent.Connected -> {
+                        Log.d(TAG, "룸 연결 성공: ${event.room.name}")
+                        configureAudioChannelAndMicrophone() // 오디오 채널 및 마이크 설정
+                        publishLocalAudioTrack() // 로컬 마이크 트랙 퍼블리싱
+                    }
+                    is RoomEvent.TrackSubscribed -> {
+                        if (event.track is AudioTrack) {
+                            handleSubscribedAudioTrack(event.track as AudioTrack)
+                        }
+                    }
+                    else -> Log.d(TAG, "Unhandled 이벤트 발생: $event")
+                }
+            }
         } catch (e: Exception) {
-            Log.e(TAG, "오디오 트랙 처리 중 오류 발생: ${e.message}", e)
+            Log.e(TAG, "룸 연결 실패: ${e.message}", e)
+            statusText.text = "룸 연결 실패: ${e.message}"
         }
     }
 
-    private fun setSpeakerMode(enabled: Boolean) {
+    private fun configureAudioChannelAndMicrophone() {
         try {
             audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
-            audioManager.isSpeakerphoneOn = enabled
-            Log.d(TAG, "스피커 모드 설정됨: $enabled")
+            audioManager.isMicrophoneMute = false
+            audioManager.isSpeakerphoneOn = true
         } catch (e: Exception) {
-            Log.e(TAG, "스피커 모드 설정 중 오류 발생: ${e.message}", e)
+            Log.e(TAG, "오디오 채널 및 마이크 설정 중 오류 발생: ${e.message}", e)
+        }
+    }
+
+    private suspend fun publishLocalAudioTrack() {
+        try {
+            // 기본 오디오 트랙 퍼블리싱
+            room.localParticipant?.setMicrophoneEnabled(true)
+            Log.d(TAG, "로컬 마이크 트랙 퍼블리싱 성공")
+        } catch (e: Exception) {
+            Log.e(TAG, "로컬 마이크 트랙 퍼블리싱 중 오류 발생: ${e.message}", e)
+        }
+    }
+
+    private fun handleSubscribedAudioTrack(audioTrack: AudioTrack) {
+        try {
+            audioTrack.start()
+            audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
+            audioManager.isSpeakerphoneOn = true
+            Log.d(TAG, "구독된 오디오 트랙 활성화됨")
+        } catch (e: Exception) {
+            Log.e(TAG, "구독된 오디오 트랙 처리 중 오류 발생: ${e.message}", e)
         }
     }
 }
