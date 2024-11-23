@@ -1,15 +1,14 @@
 package com.example.martfia.service
 
+import com.example.martfia.model.request.RecommendedRecipeRequest
 import com.example.martfia.model.response.RecommendedRecipeResponse
 import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.Query
+import retrofit2.http.Body
+import retrofit2.http.POST
 
 interface RecommendedRecipeService {
-    @GET("api/recipe")
+    @POST("api/recipe")
     fun getRecommendedRecipes(
-        @Query("photo") photo: String,          // 이미지 URL
-        @Query("foodName") foodName: String,    // 재료 이름
-        @Query("cookingTime") cookingTime: String // 요리 시간
+        @Body request: RecommendedRecipeRequest
     ): Call<RecommendedRecipeResponse>
 }

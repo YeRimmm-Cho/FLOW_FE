@@ -24,11 +24,11 @@
         <!-- 타이틀 아이콘 -->
         <ImageView
             android:id="@+id/titleIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:contentDescription="재료 아이콘"
-            app:srcCompat="@drawable/ic_eggbasket"
-            android:layout_marginEnd="8dp"/>
+            app:srcCompat="@drawable/ic_ingredient"
+            android:layout_marginEnd="10dp"/>
 
         <!-- 타이틀 텍스트 -->
         <TextView
