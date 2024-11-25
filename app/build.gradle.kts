@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("kotlin-parcelize") // 추가: Parcelize 플러그인
+    id("kotlin-kapt")
+    id("com.google.protobuf")
 }
 
 android {
@@ -46,9 +48,27 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+
         }
     }
 }
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.24.0" // Protobuf 컴파일러
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                create("java") {
+                    option("lite") // 가벼운 Protobuf 코드 생성
+                }
+            }
+        }
+    }
+}
+
+
 
 dependencies {
 
@@ -84,7 +104,8 @@ dependencies {
     implementation("com.google.android.material:material:1.8.0")
 
     // LiveKit 리얼타임
-    implementation("io.livekit:livekit-android:2.9.0")
+    implementation("io.livekit:livekit-android:2.10.0")
+    implementation("com.google.protobuf:protobuf-javalite:3.24.0")
 
     // OkHttp 라이브러리 추가
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
@@ -94,6 +115,14 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
+    // Protobuf Lite
+    implementation("com.google.protobuf:protobuf-javalite:3.24.0")
+    implementation("io.grpc:grpc-protobuf-lite:1.57.0")
+    implementation("io.grpc:grpc-okhttp:1.57.0")
 
+    // 테스트
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
 }
