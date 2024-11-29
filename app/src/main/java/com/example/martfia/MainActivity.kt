@@ -1,6 +1,7 @@
 package com.example.martfia
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
 import androidx.activity.enableEdgeToEdge
@@ -10,9 +11,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.martfia.adapter.RecipeAdapter
-import com.example.martfia.adapter.SeasonalIngredientAdapter
 import com.example.martfia.model.Recipe
-import com.example.martfia.model.SeasonalIngredient
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,28 +28,17 @@ class MainActivity : AppCompatActivity() {
             Recipe("김밥", "https://via.placeholder.com/150", "25 minutes")
         )
 
-        // SeasonalIngredient 더미 데이터
-        val seasonalIngredientList = listOf(
-            SeasonalIngredient("늙은 호박", "https://via.placeholder.com/150", "10월-12월"),
-            SeasonalIngredient("대하", "https://via.placeholder.com/150", "9월-12월"),
-            SeasonalIngredient("삼치", "https://via.placeholder.com/150", "10월-2월"),
-            SeasonalIngredient("배", "https://via.placeholder.com/150", "9월-11월"),
-        )
 
         // RecyclerView
         val recyclerView_Recipe = findViewById<RecyclerView>(R.id.todayRecipeList)
-        val recyclerView_Ingredient = findViewById<RecyclerView>(R.id.seasonalIngredientsList)
 
         // LayoutManager - 한 줄 수평 스크롤
         val recipeLayoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        val ingredientLayoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
         recyclerView_Recipe.layoutManager = recipeLayoutManager
-        recyclerView_Ingredient.layoutManager = ingredientLayoutManager
 
         // Adapter
         recyclerView_Recipe.adapter = RecipeAdapter(recipeList)
-        recyclerView_Ingredient.adapter=SeasonalIngredientAdapter(seasonalIngredientList)
 
 
 
@@ -58,6 +46,14 @@ class MainActivity : AppCompatActivity() {
         val recommendButton: Button = findViewById(R.id.recommendButton)
         recommendButton.setOnClickListener {
             val intent = Intent(this, ChooseImageActivity::class.java)
+            startActivity(intent)
+        }
+
+        // 제철 재료 버튼 클릭 시 브라우저 열기
+        val seasonalIngredientsButton: Button = findViewById(R.id.seasonalIngredientsButton)
+        seasonalIngredientsButton.setOnClickListener {
+            val url = "https://search.naver.com/search.naver?sm=tab_hty.top&where=nexearch&ssc=tab.nx.all&query=제철+재료&oquery=계절+재료&tqi=i0dTdlqo15VsssqvX4GssssstzC-022201"
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
             startActivity(intent)
         }
 
