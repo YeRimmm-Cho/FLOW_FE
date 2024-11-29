@@ -1,6 +1,7 @@
 package com.example.martfia
 
 import android.Manifest
+import android.app.ProgressDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -22,10 +23,16 @@ import com.example.martfia.model.request.ImageUploadRequest
 import com.example.martfia.model.request.ReceiptUploadRequest
 import com.example.martfia.model.response.ImageUploadResponse
 import com.example.martfia.model.Ingredient
+import com.example.martfia.model.response.ImageUploadOnlyResponse
+import com.example.martfia.model.response.IngredientsResponse
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
+import java.io.FileInputStream
 
 class UploadActivity : AppCompatActivity() {
 
@@ -42,6 +49,7 @@ class UploadActivity : AppCompatActivity() {
     }
 
     private var tempImageFile: File? = null
+    private var uploadedImageUrl: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -123,7 +131,6 @@ class UploadActivity : AppCompatActivity() {
         startActivityForResult(pickPhotoIntent, REQUEST_IMAGE_PICK)
     }
 
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == RESULT_OK) {
@@ -131,72 +138,157 @@ class UploadActivity : AppCompatActivity() {
                 REQUEST_IMAGE_CAPTURE -> {
                     Log.d("UploadActivity", "Captured image URI: $selectedImageUri")
                     findViewById<ImageView>(R.id.uploadContainer).setImageURI(selectedImageUri)
+                    selectedImageUri?.let { uri ->
+                        val file = getFileFromUri(uri)
+                        if (file != null) {
+                            uploadImage(file) { imageUrl ->
+                                Log.d("UploadActivity", "Image uploaded successfully: $imageUrl")
+                                Toast.makeText(this, "이미지 업로드 성공", Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            Toast.makeText(this, "이미지 파일 변환 실패", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
                 REQUEST_IMAGE_PICK -> {
                     selectedImageUri = data?.data
                     Log.d("UploadActivity", "Picked image URI: $selectedImageUri")
                     findViewById<ImageView>(R.id.uploadContainer).setImageURI(selectedImageUri)
+                    selectedImageUri?.let { uri ->
+                        val file = getFileFromUri(uri)
+                        if (file != null) {
+                            uploadImage(file) { imageUrl ->
+                                Log.d("UploadActivity", "Image uploaded successfully: $imageUrl")
+                                Toast.makeText(this, "이미지 업로드 성공", Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            Toast.makeText(this, "이미지 파일 변환 실패", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
             }
         }
     }
 
+    private fun uploadImage(file: File, onSuccess: (String) -> Unit) {
+        val progressDialog = ProgressDialog(this).apply {
+            setMessage("이미지 업로드 중...")
+            setCancelable(false)
+            show()
+        }
+
+        val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+        val multipartBody = MultipartBody.Part.createFormData("image", file.name, requestFile)
+
+        ingredientService.uploadImageFile(multipartBody).enqueue(object : Callback<ImageUploadOnlyResponse> {
+            override fun onResponse(call: Call<ImageUploadOnlyResponse>, response: Response<ImageUploadOnlyResponse>) {
+                progressDialog.dismiss() // 로딩 상태 종료
+                if (response.isSuccessful && response.body() != null) {
+                    uploadedImageUrl = response.body()!!.image_url // 서버에서 받은 URL 저장
+                    Log.d("UploadActivity", "Uploaded Image URL: $uploadedImageUrl")
+                    onSuccess(uploadedImageUrl!!)
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("UploadActivity", "Image upload failed: $errorBody")
+                    Toast.makeText(this@UploadActivity, "이미지 업로드 실패: $errorBody", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<ImageUploadOnlyResponse>, t: Throwable) {
+                progressDialog.dismiss() // 로딩 상태 종료
+                Log.e("UploadActivity", "Image upload failed", t)
+                Toast.makeText(this@UploadActivity, "이미지 업로드 실패: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+
+
+    private fun getFileFromUri(uri: Uri): File? {
+        val fileDescriptor = contentResolver.openFileDescriptor(uri, "r") ?: return null
+        val inputStream = FileInputStream(fileDescriptor.fileDescriptor)
+        val file = File(cacheDir, "temp_image.jpg") // 캐시 디렉터리에 임시 파일 생성
+        file.outputStream().use { output ->
+            inputStream.copyTo(output)
+        }
+        return file
+    }
+
 
     private fun recognizeIngredients() {
-        if (selectedImageUri == null) {
-            Toast.makeText(this, "이미지를 선택해주세요.", Toast.LENGTH_SHORT).show()
-            Log.e("UploadActivity", "recognizeIngredients() failed: No image selected")
+        if (uploadedImageUrl.isNullOrEmpty()) {
+            Toast.makeText(this, "이미지를 업로드하세요.", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val imageUrl = selectedImageUri.toString() // URI를 문자열로 변환
-        Log.d("UploadActivity", "Image URI: $selectedImageUri")
-        Log.d("UploadActivity", "Image URL: $imageUrl")
-
         when (uploadType) {
-            "food" -> {
-                val request = ImageUploadRequest(image_url = imageUrl)
-                Log.d("UploadActivity", "Food Upload Request: $request")
-                ingredientService.uploadImage(request)
-                    .enqueue(object : Callback<ImageUploadResponse> {
-                        override fun onResponse(
-                            call: Call<ImageUploadResponse>,
-                            response: Response<ImageUploadResponse>
-                        ) {
-                            Log.d("UploadActivity", "Food Upload Response: ${response.raw()}")
-                            handleApiResponse(response)
-                        }
-
-                        override fun onFailure(call: Call<ImageUploadResponse>, t: Throwable) {
-                            Log.e("UploadActivity", "Food Upload Failed", t)
-                            handleApiFailure(t)
-                        }
-                    })
-            }
-
-            "receipt" -> {
-                val request = ReceiptUploadRequest(receipt_url = imageUrl)
-                Log.d("UploadActivity", "Receipt Upload Request: $request")
-                ingredientService.uploadReceipt(request)
-                    .enqueue(object : Callback<ImageUploadResponse> {
-                        override fun onResponse(
-                            call: Call<ImageUploadResponse>,
-                            response: Response<ImageUploadResponse>
-                        ) {
-                            Log.d("UploadActivity", "Receipt Upload Response: ${response.raw()}")
-                            handleApiResponse(response)
-                        }
-
-                        override fun onFailure(call: Call<ImageUploadResponse>, t: Throwable) {
-                            Log.e("UploadActivity", "Receipt Upload Failed", t)
-                            handleApiFailure(t)
-                        }
-                    })
-            }
-            else -> {
-                Log.e("UploadActivity", "Invalid uploadType: $uploadType")
-            }
+            "food" -> processFoodImage(uploadedImageUrl!!)
+            "receipt" -> processReceiptImage(uploadedImageUrl!!)
+            else -> Toast.makeText(this, "잘못된 업로드 유형입니다.", Toast.LENGTH_SHORT).show()
         }
+    }
+
+
+
+    private fun processFoodImage(imageUrl: String) {
+        val request = ImageUploadRequest(image_url = imageUrl)
+        ingredientService.uploadImage(request)
+            .enqueue(object : Callback<ImageUploadResponse> {
+                override fun onResponse(call: Call<ImageUploadResponse>, response: Response<ImageUploadResponse>) {
+                    if (response.isSuccessful) {
+                        fetchIngredients() // 재료 데이터 요청
+                    } else {
+                        Toast.makeText(this@UploadActivity, "재료 이미지 처리 실패", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<ImageUploadResponse>, t: Throwable) {
+                    Toast.makeText(this@UploadActivity, "서버 통신 실패", Toast.LENGTH_SHORT).show()
+                }
+            })
+    }
+
+    private fun processReceiptImage(imageUrl: String) {
+        val request = ReceiptUploadRequest(receipt_url = imageUrl)
+        ingredientService.uploadReceipt(request)
+            .enqueue(object : Callback<ImageUploadResponse> {
+                override fun onResponse(call: Call<ImageUploadResponse>, response: Response<ImageUploadResponse>) {
+                    if (response.isSuccessful) {
+                        fetchIngredients() // 재료 데이터 요청
+                    } else {
+                        Toast.makeText(this@UploadActivity, "영수증 이미지 처리 실패", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<ImageUploadResponse>, t: Throwable) {
+                    Toast.makeText(this@UploadActivity, "서버 통신 실패", Toast.LENGTH_SHORT).show()
+                }
+            })
+    }
+
+    private fun fetchIngredients() {
+        ingredientService.getIngredients().enqueue(object : Callback<IngredientsResponse> {
+            override fun onResponse(call: Call<IngredientsResponse>, response: Response<IngredientsResponse>) {
+                if (response.isSuccessful && response.body() != null) {
+                    // Map 데이터를 Ingredient 리스트로 변환
+                    val ingredients = response.body()?.images?.map { (name, url) ->
+                        Ingredient(image_url = url, name = name)
+                    } ?: emptyList()
+
+                    // Intent로 데이터 전달
+                    val intent = Intent(this@UploadActivity, CheckIngredientActivity::class.java).apply {
+                        putParcelableArrayListExtra("saved_ingredients", ArrayList(ingredients)) // ArrayList로 변환
+                    }
+                    startActivity(intent)
+                } else {
+                    Toast.makeText(this@UploadActivity, "재료 데이터를 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<IngredientsResponse>, t: Throwable) {
+                Toast.makeText(this@UploadActivity, "재료 데이터 요청 실패", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
 

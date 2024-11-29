@@ -2,6 +2,7 @@ package com.example.martfia.service
 
 import com.example.martfia.model.request.ImageUploadRequest
 import com.example.martfia.model.request.ReceiptUploadRequest
+import com.example.martfia.model.response.ImageUploadOnlyResponse
 import com.example.martfia.model.response.ImageUploadResponse
 import com.example.martfia.model.response.IngredientsResponse
 import okhttp3.MultipartBody
@@ -15,6 +16,13 @@ import retrofit2.http.Part
 
 interface IngredientRecognitionService {
 
+    // 이미지 파일 업로드 API
+    @Multipart
+    @POST("api/upload")
+    fun uploadImageFile(
+        @Part image: MultipartBody.Part
+    ): Call<ImageUploadOnlyResponse>
+
     // 재료 이미지 업로드 API
     @POST("api/image/food")
     fun uploadImage(
@@ -26,6 +34,7 @@ interface IngredientRecognitionService {
     fun uploadReceipt(
         @Body request: ReceiptUploadRequest
     ): Call<ImageUploadResponse>
+
 
     // 인식된 재료 반환 API
     @GET("api/ingredients")
