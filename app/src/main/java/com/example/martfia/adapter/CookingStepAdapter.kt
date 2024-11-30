@@ -6,10 +6,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.martfia.R
-import com.example.martfia.model.CookingStep
 
-class CookingStepAdapter(private val stepList: List<CookingStep>) :
+class CookingStepAdapter(private val steps: Map<String, String>) :
     RecyclerView.Adapter<CookingStepAdapter.ViewHolder>() {
+
+    private val stepsList = steps.toList()
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val stepNumberTextView: TextView = view.findViewById(R.id.stepNumberTextView)
@@ -23,10 +24,10 @@ class CookingStepAdapter(private val stepList: List<CookingStep>) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val step = stepList[position]
-        holder.stepNumberTextView.text = step.stepNumber.toString()
-        holder.stepDescriptionTextView.text = step.description
+        val (stepNumber, description) = stepsList[position]
+        holder.stepNumberTextView.text = stepNumber
+        holder.stepDescriptionTextView.text = description
     }
 
-    override fun getItemCount(): Int = stepList.size
+    override fun getItemCount(): Int = stepsList.size
 }

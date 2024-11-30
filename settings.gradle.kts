@@ -11,19 +11,20 @@ pluginManagement {
         gradlePluginPortal()
     }
     plugins {
-        // Protobuf 플러그인 추가
+        // 필요한 플러그인 정의
         id("com.google.protobuf") version "0.9.3"
+        id("org.jetbrains.kotlin.android") version "1.9.0"
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
-        maven { url = uri("https://jitpack.io") } // JitPack 저장소 추가
+        maven { url = uri("https://jitpack.io") }
     }
 }
 
 rootProject.name = "Martfia"
 include(":app")
- 

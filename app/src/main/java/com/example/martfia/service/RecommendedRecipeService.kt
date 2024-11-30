@@ -1,6 +1,7 @@
 package com.example.martfia.service
 
 import com.example.martfia.model.request.RecommendedRecipeRequest
+import com.example.martfia.model.response.CookingAssistantResponse
 import com.example.martfia.model.response.RecommendedRecipeDetailResponse
 import com.example.martfia.model.response.RecommendedRecipeResponse
 import retrofit2.Call
@@ -19,4 +20,9 @@ interface RecommendedRecipeService {
     fun getRecipeDetails(
         @Path("id") id: Int // 조회할 레시피 ID
     ): Call<RecommendedRecipeDetailResponse>
+
+    @GET("api/recipe/{recipe_id}/start")
+    fun startCookingAssistant(
+        @Path("recipe_id") recipeId: Int
+    ): Call<CookingAssistantResponse>
 }

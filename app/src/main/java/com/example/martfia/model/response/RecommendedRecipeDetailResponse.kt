@@ -5,9 +5,13 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class RecommendedRecipeDetailResponse(
-    val id: Int,              // 레시피 ID
-    val foodName: String,     // 요리 이름
-    val cookingTime: String,  // 요리 시간
-    val image: String,         // 이미지 URL
-    val steps: List<String> // 조리 방법 리스트
+    val recipe: RecipeDetail // 응답 데이터의 `recipe` 키
+) : Parcelable
+
+@Parcelize
+data class RecipeDetail(
+    val cookingTime: String,               // 조리 시간
+    val foodName: String,                  // 요리 이름
+    val image: String,                     // 이미지 URL
+    val instructions: Map<String, String>  // 단계별 조리 방법 (단계 번호 -> 설명)
 ) : Parcelable
