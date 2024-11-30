@@ -1,6 +1,6 @@
 plugins {
-    alias(libs.plugins.androidApplication)
-    alias(libs.plugins.jetbrainsKotlinAndroid)
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android") version "1.9.0"
     id("kotlin-parcelize") // 추가: Parcelize 플러그인
     id("kotlin-kapt")
     id("com.google.protobuf")
@@ -102,10 +102,6 @@ dependencies {
 
     // ShapeableImageView (이미지 모서리 둥글게)
     implementation("com.google.android.material:material:1.8.0")
-
-    // LiveKit 리얼타임
-    implementation("io.livekit:livekit-android:2.10.0")
-    implementation("com.google.protobuf:protobuf-javalite:3.24.0")
 
     // OkHttp 라이브러리 추가
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
