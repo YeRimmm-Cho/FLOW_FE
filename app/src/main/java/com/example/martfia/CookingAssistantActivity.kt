@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -89,17 +90,23 @@ class CookingAssistantActivity : AppCompatActivity() {
     }
 
     private fun playAudio(audioUrl: String) {
-        stopAudio() // 기존 재생 중인 오디오 중지
+        Log.d("CookingAssistantActivity", "Attempting to play audio from: $audioUrl")
+        stopAudio()
         mediaPlayer = MediaPlayer().apply {
             try {
-                setDataSource(audioUrl) // API 응답의 오디오 URL
-                prepare()
-                start()
+                setDataSource(audioUrl)
+                setOnPreparedListener { start() }
+                setOnCompletionListener {
+                    Log.d("CookingAssistantActivity", "Audio playback completed.")
+                }
+                prepareAsync()
             } catch (e: Exception) {
+                Log.e("CookingAssistantActivity", "Error playing audio: $e")
                 Toast.makeText(this@CookingAssistantActivity, "오디오를 재생할 수 없습니다.", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
 
     private fun stopAudio() {
         mediaPlayer?.apply {
