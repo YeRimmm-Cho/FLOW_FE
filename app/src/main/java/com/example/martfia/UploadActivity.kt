@@ -183,10 +183,16 @@ class UploadActivity : AppCompatActivity() {
         ingredientService.uploadImageFile(multipartBody).enqueue(object : Callback<ImageUploadOnlyResponse> {
             override fun onResponse(call: Call<ImageUploadOnlyResponse>, response: Response<ImageUploadOnlyResponse>) {
                 progressDialog.dismiss() // 로딩 상태 종료
-                if (response.isSuccessful && response.body() != null) {
-                    uploadedImageUrl = response.body()!!.image_url // 서버에서 받은 URL 저장
-                    Log.d("UploadActivity", "Uploaded Image URL: $uploadedImageUrl")
-                    onSuccess(uploadedImageUrl!!)
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body != null && body.image_url != null) {
+                        uploadedImageUrl = body.image_url
+                        Log.d("UploadActivity", "Uploaded Image URL: $uploadedImageUrl")
+                        onSuccess(uploadedImageUrl!!)
+                    } else {
+                        Log.e("UploadActivity", "Response body or image_url is null")
+                        Toast.makeText(this@UploadActivity, "이미지 업로드 실패: 응답 데이터가 없습니다.", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     val errorBody = response.errorBody()?.string()
                     Log.e("UploadActivity", "Image upload failed: $errorBody")
