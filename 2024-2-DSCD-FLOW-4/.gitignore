@@ -1,0 +1,22 @@
+<<<<<<< HEAD
+# 환경 변수 파일
+.env
+marfia_key.pem
+=======
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+.env
+>>>>>>> d939b30e4e5ec3b2a9dd89fe9008409fce04e96a
