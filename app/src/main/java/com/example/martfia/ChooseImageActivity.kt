@@ -31,11 +31,22 @@ class ChooseImageActivity : AppCompatActivity() {
         onlineReceiptButton.setOnClickListener {
             navigateToUploadScreen("receipt") // "receipt" 값 전달
         }
+
+        // 유튜브 URL 버튼 클릭 이벤트
+        val youtubeUrlButton = findViewById<LinearLayout>(R.id.youtubeUrlButton)
+        youtubeUrlButton.setOnClickListener {
+            navigateToUploadUrlScreen() // UploadUrlActivity로 이동
+        }
     }
 
     private fun navigateToUploadScreen(uploadType: String) {
         val intent = Intent(this, UploadActivity::class.java)
         intent.putExtra("uploadType", uploadType) // 업로드 타입 전달
+        startActivity(intent)
+    }
+
+    private fun navigateToUploadUrlScreen() {
+        val intent = Intent(this, UploadUrlActivity::class.java)
         startActivity(intent)
     }
 }
