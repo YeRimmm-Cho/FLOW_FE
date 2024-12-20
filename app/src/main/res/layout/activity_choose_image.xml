@@ -23,7 +23,7 @@
         android:id="@+id/titleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="재료를 넣어주세요"
+        android:text="추천 방식을 선택해주세요"
         android:textSize="26sp"
         android:textStyle="bold"
         android:fontFamily="@font/poppins_bold"
@@ -32,7 +32,43 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:gravity="center"
-        android:layout_marginTop="80dp"/>
+        android:layout_marginTop="40dp"/>
+
+    <LinearLayout
+        android:id="@+id/youtubeUrlButton"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:background="@drawable/background_link"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="16dp"
+        app:layout_constraintTop_toBottomOf="@id/titleText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="40dp"
+        app:layout_constraintWidth_percent="0.7">
+
+        <!-- Link 아이콘 -->
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_link"
+            android:contentDescription="유튜브 URL" />
+
+        <!-- 텍스트 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="유튜브 URL"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/poppins_medium"
+            android:textColor="@android:color/black"
+            android:layout_marginTop="8dp"
+            android:gravity="center" />
+
+    </LinearLayout>
+
 
     <!-- 재료 사진 버튼 -->
     <LinearLayout
@@ -43,10 +79,10 @@
         android:orientation="vertical"
         android:gravity="center"
         android:padding="16dp"
-        app:layout_constraintTop_toBottomOf="@id/titleText"
+        app:layout_constraintTop_toBottomOf="@id/youtubeUrlButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="35dp"
         app:layout_constraintWidth_percent="0.7">
 
         <!-- Bowl 아이콘 -->
