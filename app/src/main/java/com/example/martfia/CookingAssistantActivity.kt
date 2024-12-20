@@ -38,24 +38,17 @@ class CookingAssistantActivity : AppCompatActivity() {
         nextStepButton = findViewById(R.id.nextStepButton)
         backButton = findViewById(R.id.backButton)
 
-        val recipeId = intent.getIntExtra("recipe_id", -1) // 전달받은 recipe_id
-        if (recipeId == -1) {
-            Toast.makeText(this, "잘못된 레시피 ID입니다.", Toast.LENGTH_SHORT).show()
-            finish()
-            return
-        }
-
         // SpeechRecognizer 초기화
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
-        setupSpeechRecognizer(recipeId)
+        setupSpeechRecognizer()
 
         // 초기 단계 호출
-        fetchCookingStep(recipeId, currentStep)
+        fetchCookingStep(currentStep)
 
-        // "다음 단계" 버튼: 선택적으로 사용
+        // "다음 단계" 버튼
         nextStepButton.setOnClickListener {
             currentStep++
-            fetchCookingStep(recipeId, currentStep)
+            fetchCookingStep(currentStep)
         }
 
         // 뒤로 가기 버튼
@@ -65,14 +58,13 @@ class CookingAssistantActivity : AppCompatActivity() {
         }
     }
 
-    private fun fetchCookingStep(recipeId: Int, step: Int) {
+
+    private fun fetchCookingStep(step: Int) {
         val service = MartfiaRetrofitClient.createService(CookingAssistantService::class.java)
 
-        service.queryRecipeStep(recipeId, null, null, step).enqueue(object : Callback<RecipeQueryResponse> {
-            override fun onResponse(
-                call: Call<RecipeQueryResponse>,
-                response: Response<RecipeQueryResponse>
-            ) {
+        // API 호출: audio와 text는 null로 전달 (필요 시 추가 처리)
+        service.queryRecipeStep(null, null, step).enqueue(object : Callback<RecipeQueryResponse> {
+            override fun onResponse(call: Call<RecipeQueryResponse>, response: Response<RecipeQueryResponse>) {
                 if (response.isSuccessful && response.body() != null) {
                     val responseData = response.body()!!
                     // 안내 메시지 업데이트
@@ -88,6 +80,7 @@ class CookingAssistantActivity : AppCompatActivity() {
             }
         })
     }
+
 
     private fun playAudio(audioUrl: String) {
         Log.d("CookingAssistantActivity", "Attempting to play audio from: $audioUrl")
@@ -119,7 +112,7 @@ class CookingAssistantActivity : AppCompatActivity() {
         mediaPlayer = null
     }
 
-    private fun setupSpeechRecognizer(recipeId: Int) {
+    private fun setupSpeechRecognizer() {
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
@@ -145,7 +138,7 @@ class CookingAssistantActivity : AppCompatActivity() {
 
                 if (userSpeech.contains("다음", true)) {
                     currentStep++
-                    fetchCookingStep(recipeId, currentStep)
+                    fetchCookingStep(currentStep)
                 } else {
                     Toast.makeText(this@CookingAssistantActivity, "다음 단계 요청이 인식되지 않았습니다.", Toast.LENGTH_SHORT).show()
                 }
@@ -158,6 +151,7 @@ class CookingAssistantActivity : AppCompatActivity() {
         // 음성 인식 시작
         speechRecognizer.startListening(intent)
     }
+
 
 
     override fun onDestroy() {

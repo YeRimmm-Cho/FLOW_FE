@@ -78,14 +78,14 @@ class RecipeDetailActivity : AppCompatActivity() {
 
         // 조리 Assistant 버튼 동작 연결
         assistantButton.setOnClickListener {
-            startCookingAssistantSession(recipeId)
+            startCookingAssistantSession()
         }
     }
 
-    private fun startCookingAssistantSession(recipeId: Int) {
+    private fun startCookingAssistantSession() {
         val service = MartfiaRetrofitClient.createService(RecommendedRecipeService::class.java)
 
-        service.startCookingAssistant(recipeId).enqueue(object : Callback<CookingAssistantResponse> {
+        service.startCookingAssistant().enqueue(object : Callback<CookingAssistantResponse> {
             override fun onResponse(
                 call: Call<CookingAssistantResponse>,
                 response: Response<CookingAssistantResponse>

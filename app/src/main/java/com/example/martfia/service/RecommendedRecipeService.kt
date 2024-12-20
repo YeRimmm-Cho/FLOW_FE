@@ -21,8 +21,6 @@ interface RecommendedRecipeService {
         @Path("id") id: Int // 조회할 레시피 ID
     ): Call<RecommendedRecipeDetailResponse>
 
-    @GET("api/recipe/{recipe_id}/start")
-    fun startCookingAssistant(
-        @Path("recipe_id") recipeId: Int
-    ): Call<CookingAssistantResponse>
+    @POST("api/recipe/start")
+    fun startCookingAssistant(): Call<CookingAssistantResponse>
 }
