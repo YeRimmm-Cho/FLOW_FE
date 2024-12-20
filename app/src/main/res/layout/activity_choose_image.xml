@@ -54,7 +54,7 @@
             app:layout_constraintWidth_percent="0.7">
 
             <ImageView
-                android:layout_width="80"
+                android:layout_width="80dp"
                 android:layout_height="100dp"
                 app:srcCompat="@drawable/ic_link"
                 android:contentDescription="유튜브 URL" />
