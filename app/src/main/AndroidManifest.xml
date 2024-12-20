@@ -28,9 +28,11 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".CookingAssistantActivity"
+            android:name=".UploadUrlActivity"
             android:exported="false" />
-        <!-- MainActivity를 메인 액티비티로 설정 -->
+        <activity
+            android:name=".CookingAssistantActivity"
+            android:exported="false" /> <!-- MainActivity를 메인 액티비티로 설정 -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
