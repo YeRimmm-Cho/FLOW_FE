@@ -7,9 +7,8 @@ import retrofit2.http.*
 
 interface CookingAssistantService {
     @Multipart
-    @POST("api/recipe/{recipe_id}/query")
+    @POST("api/recipe/query")
     fun queryRecipeStep(
-        @Path("recipe_id") recipeId: Int,
         @Part audio: MultipartBody.Part? = null,
         @Part("text") text: String? = null,
         @Part("current_step") currentStep: Int
