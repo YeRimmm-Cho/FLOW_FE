@@ -1,16 +1,15 @@
 package com.example.martfia.service
 
 import com.example.martfia.model.response.RecipeQueryResponse
-import okhttp3.MultipartBody
+import com.example.martfia.model.request.RecipeQueryRequest
 import retrofit2.Call
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.POST
 
 interface CookingAssistantService {
-    @Multipart
+
     @POST("api/recipe/query")
     fun queryRecipeStep(
-        @Part audio: MultipartBody.Part? = null,
-        @Part("text") text: String? = null,
-        @Part("current_step") currentStep: Int
+        @Body request: RecipeQueryRequest
     ): Call<RecipeQueryResponse>
 }
