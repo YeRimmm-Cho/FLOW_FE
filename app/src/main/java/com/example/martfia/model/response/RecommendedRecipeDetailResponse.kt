@@ -3,6 +3,7 @@ package com.example.martfia.model.response
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
+// 이건 키가 있는 재료 추천 관련 추천 레시피 디테일
 @Parcelize
 data class RecommendedRecipeDetailResponse(
     val recipe: RecipeDetail // 응답 데이터의 `recipe` 키

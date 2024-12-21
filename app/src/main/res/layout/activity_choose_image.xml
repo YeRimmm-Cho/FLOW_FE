@@ -36,7 +36,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:gravity="center"
-            android:layout_marginTop="40dp" />
+            android:layout_marginTop="30dp" />
 
         <!-- 유튜브 URL 버튼 -->
         <LinearLayout
