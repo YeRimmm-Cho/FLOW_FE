@@ -13,8 +13,10 @@ import com.bumptech.glide.Glide
 import com.example.martfia.adapter.CookingStepAdapter
 import com.example.martfia.model.response.CookingAssistantResponse
 import com.example.martfia.model.response.YouTubeRecipeDetailsResponse
+import com.example.martfia.model.response.YoutubeAssistantStartResponse
 import com.example.martfia.service.MartfiaRetrofitClient
 import com.example.martfia.service.RecommendedRecipeService
+import com.example.martfia.service.YoutubeAssistantService
 
 class RecipeDetailActivity : AppCompatActivity() {
 
@@ -66,27 +68,30 @@ class RecipeDetailActivity : AppCompatActivity() {
     }
 
     private fun startCookingAssistantSession() {
-        val service = MartfiaRetrofitClient.createService(RecommendedRecipeService::class.java)
+        val service = MartfiaRetrofitClient.createService(YoutubeAssistantService::class.java)
 
-        service.startCookingAssistant().enqueue(object : retrofit2.Callback<CookingAssistantResponse> {
+        service.startCookingAssistant().enqueue(object : retrofit2.Callback<YoutubeAssistantStartResponse> {
             override fun onResponse(
-                call: retrofit2.Call<CookingAssistantResponse>,
-                response: retrofit2.Response<CookingAssistantResponse>
+                call: retrofit2.Call<YoutubeAssistantStartResponse>,
+                response: retrofit2.Response<YoutubeAssistantStartResponse>
             ) {
                 if (response.isSuccessful && response.body() != null) {
-                    val responseData = response.body()!!
+                    val message = response.body()?.message ?: "조리 어시스턴트를 시작할 수 없습니다."
+
+                    // CookingAssistantActivity로 전환
                     val intent = Intent(this@RecipeDetailActivity, CookingAssistantActivity::class.java)
-                    intent.putExtra("welcome_message", responseData.message)
-                    intent.putExtra("audio_url", responseData.audio_url)
+                    intent.putExtra("assistant_message", message)
                     startActivity(intent)
                 } else {
                     Toast.makeText(this@RecipeDetailActivity, "조리 어시스턴트를 시작할 수 없습니다.", Toast.LENGTH_SHORT).show()
                 }
             }
 
-            override fun onFailure(call: retrofit2.Call<CookingAssistantResponse>, t: Throwable) {
+            override fun onFailure(call: retrofit2.Call<YoutubeAssistantStartResponse>, t: Throwable) {
                 Toast.makeText(this@RecipeDetailActivity, "서버와의 통신에 실패했습니다.", Toast.LENGTH_SHORT).show()
             }
         })
     }
+
+
 }
