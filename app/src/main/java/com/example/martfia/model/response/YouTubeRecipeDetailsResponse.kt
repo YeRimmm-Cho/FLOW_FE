@@ -5,13 +5,14 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class YouTubeRecipeDetailsResponse(
-    val recipe: YouTubeRecipe? // Nullable로 변경
-) : Parcelable
-
-@Parcelize
-data class YouTubeRecipe(
     val foodName: String,             // 음식 이름
     val cookingTime: String,          // 조리 시간
     val image: String,                // 이미지 URL
-    val instructions: Map<String, String> // 조리 단계
+    val instructions: List<Instruction> // 조리 단계
+) : Parcelable
+
+@Parcelize
+data class Instruction(
+    val step: String,                 // 단계 번호
+    val description: String           // 단계 설명
 ) : Parcelable

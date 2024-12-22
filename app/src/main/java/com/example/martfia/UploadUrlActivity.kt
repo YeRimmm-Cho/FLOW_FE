@@ -67,10 +67,22 @@ class UploadUrlActivity : AppCompatActivity() {
                 progressBar.visibility = View.GONE // ProgressBar 숨기기
                 if (response.isSuccessful) {
                     val recipeDetails = response.body()
-                    if (recipeDetails?.recipe != null) {
-                        moveToRecipeDetailActivity(recipeDetails)
+                    Log.d("UploadUrlActivity", "Response Body: $recipeDetails")
+                    Log.d("UploadUrlActivity", "Raw JSON: ${response.raw()}")
+                    if (recipeDetails != null) {
+                        // instructions 필드가 비어있는지 확인
+                        if (recipeDetails.instructions.isNullOrEmpty()) {
+                            Log.w("UploadUrlActivity", "Instructions field is null or empty")
+                            Toast.makeText(
+                                this@UploadUrlActivity,
+                                "조리 단계 정보가 없습니다.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            moveToRecipeDetailActivity(recipeDetails)
+                        }
                     } else {
-                        Log.e("UploadUrlActivity", "Recipe or RecipeDetails is null")
+                        Log.e("UploadUrlActivity", "RecipeDetails is null")
                         Toast.makeText(
                             this@UploadUrlActivity,
                             "레시피 정보를 받을 수 없습니다.",
@@ -78,7 +90,8 @@ class UploadUrlActivity : AppCompatActivity() {
                         ).show()
                     }
                 } else {
-                    Log.e("UploadUrlActivity", "Response failed with code: ${response.code()}")
+                    Log.e("UploadUrlActivity", "Response Code: ${response.code()}")
+                    Log.e("UploadUrlActivity", "Error Body: ${response.errorBody()?.string()}") // Error Body 출력
                     Toast.makeText(
                         this@UploadUrlActivity,
                         "업로드 실패: ${response.code()}",

@@ -11,12 +11,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.martfia.adapter.CookingStepAdapter
-import com.example.martfia.model.response.CookingAssistantResponse
 import com.example.martfia.model.response.YouTubeRecipeDetailsResponse
 import com.example.martfia.model.response.YoutubeAssistantStartResponse
 import com.example.martfia.service.MartfiaRetrofitClient
-import com.example.martfia.service.RecommendedRecipeService
 import com.example.martfia.service.YoutubeAssistantService
+import android.util.Log
 
 class RecipeDetailActivity : AppCompatActivity() {
 
@@ -39,23 +38,28 @@ class RecipeDetailActivity : AppCompatActivity() {
 
         // Intent에서 YouTubeRecipeDetailsResponse 데이터 가져오기
         val recipeDetails = intent.getParcelableExtra<YouTubeRecipeDetailsResponse>("recipeDetails")
-        if (recipeDetails != null) {
-            val recipe = recipeDetails.recipe
 
+        if (recipeDetails != null) {
             // UI 업데이트
-            recipeNameTextView.text = recipe.foodName
-            recipeTimeTextView.text = recipe.cookingTime
+            recipeNameTextView.text = recipeDetails.foodName
+            recipeTimeTextView.text = recipeDetails.cookingTime
 
             Glide.with(this)
-                .load(recipe.image)
+                .load(recipeDetails.image)
                 .centerCrop()
                 .placeholder(R.drawable.img_cooking)
                 .into(recipeImageView)
 
-            // RecyclerView 설정
-            recipeStepsRecyclerView.layoutManager = LinearLayoutManager(this)
-            recipeStepsRecyclerView.adapter = CookingStepAdapter(recipe.instructions)
-
+            // instructions 필드 확인 및 처리
+            val instructions = recipeDetails.instructions ?: emptyList()
+            if (instructions.isEmpty()) {
+                Log.w("RecipeDetailActivity", "Instructions field is null or empty")
+                Toast.makeText(this, "조리 단계 정보가 없습니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                // RecyclerView 설정
+                recipeStepsRecyclerView.layoutManager = LinearLayoutManager(this)
+                recipeStepsRecyclerView.adapter = CookingStepAdapter(instructions)
+            }
         } else {
             Toast.makeText(this, "레시피 정보를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
             finish()
@@ -92,6 +96,4 @@ class RecipeDetailActivity : AppCompatActivity() {
             }
         })
     }
-
-
 }
