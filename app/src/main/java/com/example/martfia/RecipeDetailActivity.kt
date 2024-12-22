@@ -12,12 +12,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.martfia.adapter.CookingStepAdapter
 import com.example.martfia.model.response.CookingAssistantResponse
-import com.example.martfia.model.response.RecommendedRecipeDetailResponse
+import com.example.martfia.model.response.YouTubeRecipeDetailsResponse
+import com.example.martfia.model.response.YoutubeAssistantStartResponse
 import com.example.martfia.service.MartfiaRetrofitClient
 import com.example.martfia.service.RecommendedRecipeService
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.example.martfia.service.YoutubeAssistantService
 
 class RecipeDetailActivity : AppCompatActivity() {
 
@@ -25,6 +24,7 @@ class RecipeDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_recipe_detail)
 
+        // UI 요소 초기화
         val backButton = findViewById<ImageView>(R.id.backButton)
         val recipeImageView = findViewById<ImageView>(R.id.recipeImageView)
         val recipeNameTextView = findViewById<TextView>(R.id.recipeNameTextView)
@@ -32,78 +32,66 @@ class RecipeDetailActivity : AppCompatActivity() {
         val recipeStepsRecyclerView = findViewById<RecyclerView>(R.id.recipeStepsRecyclerView)
         val assistantButton = findViewById<LinearLayout>(R.id.assistantButton)
 
+        // 뒤로 가기 버튼 클릭 리스너
         backButton.setOnClickListener {
-            val intent = Intent(this, RecommendedRecipeActivity::class.java)
-            startActivity(intent)
-            finish()
+            finish() // 이전 화면으로 이동
         }
 
-        val recipeId = intent.getIntExtra("recipe_id", -1)
-        if (recipeId == -1) {
-            Toast.makeText(this, "잘못된 레시피 ID입니다.", Toast.LENGTH_SHORT).show()
+        // Intent에서 YouTubeRecipeDetailsResponse 데이터 가져오기
+        val recipeDetails = intent.getParcelableExtra<YouTubeRecipeDetailsResponse>("recipeDetails")
+        if (recipeDetails != null) {
+            val recipe = recipeDetails.recipe
+
+            // UI 업데이트
+            recipeNameTextView.text = recipe.foodName
+            recipeTimeTextView.text = recipe.cookingTime
+
+            Glide.with(this)
+                .load(recipe.image)
+                .centerCrop()
+                .placeholder(R.drawable.img_cooking)
+                .into(recipeImageView)
+
+            // RecyclerView 설정
+            recipeStepsRecyclerView.layoutManager = LinearLayoutManager(this)
+            recipeStepsRecyclerView.adapter = CookingStepAdapter(recipe.instructions)
+
+        } else {
+            Toast.makeText(this, "레시피 정보를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
             finish()
-            return
         }
-
-        // 레시피 상세 정보 가져오기
-        val service = MartfiaRetrofitClient.createService(RecommendedRecipeService::class.java)
-        service.getRecipeDetails(recipeId).enqueue(object : Callback<RecommendedRecipeDetailResponse> {
-            override fun onResponse(
-                call: Call<RecommendedRecipeDetailResponse>,
-                response: Response<RecommendedRecipeDetailResponse>
-            ) {
-                if (response.isSuccessful && response.body() != null) {
-                    val recipeDetail = response.body()!!.recipe
-                    recipeNameTextView.text = recipeDetail.foodName
-                    recipeTimeTextView.text = recipeDetail.cookingTime
-
-                    Glide.with(this@RecipeDetailActivity)
-                        .load(recipeDetail.image)
-                        .centerCrop()
-                        .placeholder(R.drawable.img_cooking)
-                        .into(recipeImageView)
-
-                    // RecyclerView 설정
-                    recipeStepsRecyclerView.layoutManager = LinearLayoutManager(this@RecipeDetailActivity)
-                    recipeStepsRecyclerView.adapter = CookingStepAdapter(recipeDetail.instructions)
-                } else {
-                    Toast.makeText(this@RecipeDetailActivity, "레시피 정보를 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onFailure(call: Call<RecommendedRecipeDetailResponse>, t: Throwable) {
-                Toast.makeText(this@RecipeDetailActivity, "서버와의 통신에 실패했습니다.", Toast.LENGTH_SHORT).show()
-            }
-        })
 
         // 조리 Assistant 버튼 동작 연결
         assistantButton.setOnClickListener {
-            startCookingAssistantSession(recipeId)
+            startCookingAssistantSession()
         }
     }
 
-    private fun startCookingAssistantSession(recipeId: Int) {
-        val service = MartfiaRetrofitClient.createService(RecommendedRecipeService::class.java)
+    private fun startCookingAssistantSession() {
+        val service = MartfiaRetrofitClient.createService(YoutubeAssistantService::class.java)
 
-        service.startCookingAssistant(recipeId).enqueue(object : Callback<CookingAssistantResponse> {
+        service.startCookingAssistant().enqueue(object : retrofit2.Callback<YoutubeAssistantStartResponse> {
             override fun onResponse(
-                call: Call<CookingAssistantResponse>,
-                response: Response<CookingAssistantResponse>
+                call: retrofit2.Call<YoutubeAssistantStartResponse>,
+                response: retrofit2.Response<YoutubeAssistantStartResponse>
             ) {
                 if (response.isSuccessful && response.body() != null) {
-                    val responseData = response.body()!!
+                    val message = response.body()?.message ?: "조리 어시스턴트를 시작할 수 없습니다."
+
+                    // CookingAssistantActivity로 전환
                     val intent = Intent(this@RecipeDetailActivity, CookingAssistantActivity::class.java)
-                    intent.putExtra("welcome_message", responseData.message)
-                    intent.putExtra("audio_url", responseData.audio_url)
+                    intent.putExtra("assistant_message", message)
                     startActivity(intent)
                 } else {
                     Toast.makeText(this@RecipeDetailActivity, "조리 어시스턴트를 시작할 수 없습니다.", Toast.LENGTH_SHORT).show()
                 }
             }
 
-            override fun onFailure(call: Call<CookingAssistantResponse>, t: Throwable) {
+            override fun onFailure(call: retrofit2.Call<YoutubeAssistantStartResponse>, t: Throwable) {
                 Toast.makeText(this@RecipeDetailActivity, "서버와의 통신에 실패했습니다.", Toast.LENGTH_SHORT).show()
             }
         })
     }
+
+
 }
