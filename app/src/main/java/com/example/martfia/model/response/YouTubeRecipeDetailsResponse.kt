@@ -5,7 +5,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class YouTubeRecipeDetailsResponse(
-    val recipe: YouTubeRecipe
+    val recipe: YouTubeRecipe? // Nullable로 변경
 ) : Parcelable
 
 @Parcelize
