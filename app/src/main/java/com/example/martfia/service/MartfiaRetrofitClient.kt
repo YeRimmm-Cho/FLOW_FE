@@ -10,9 +10,9 @@ object MartfiaRetrofitClient {
 
     // OkHttpClient 설정 추가
     private val okHttpClient = OkHttpClient.Builder()
-        .connectTimeout(30, TimeUnit.SECONDS) // 연결 타임아웃 설정
-        .readTimeout(30, TimeUnit.SECONDS) // 읽기 타임아웃 설정
-        .writeTimeout(30, TimeUnit.SECONDS) // 쓰기 타임아웃 설정
+        .connectTimeout(60, TimeUnit.SECONDS) // 연결 타임아웃 설정
+        .readTimeout(60, TimeUnit.SECONDS)    // 읽기 타임아웃 설정
+        .writeTimeout(60, TimeUnit.SECONDS)   // 쓰기 타임아웃 설정
         .build()
 
     // Retrofit 인스턴스를 하나만 생성하여 모든 서비스에서 재사용하도록 설정

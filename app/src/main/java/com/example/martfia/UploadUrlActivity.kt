@@ -16,6 +16,7 @@ import com.example.martfia.service.YouTubeService
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import android.util.Log
 
 class UploadUrlActivity : AppCompatActivity() {
 
@@ -66,19 +67,34 @@ class UploadUrlActivity : AppCompatActivity() {
                 progressBar.visibility = View.GONE // ProgressBar 숨기기
                 if (response.isSuccessful) {
                     val recipeDetails = response.body()
-                    if (recipeDetails != null) {
+                    if (recipeDetails?.recipe != null) {
                         moveToRecipeDetailActivity(recipeDetails)
                     } else {
-                        Toast.makeText(this@UploadUrlActivity, "서버에서 데이터를 받을 수 없습니다.", Toast.LENGTH_SHORT).show()
+                        Log.e("UploadUrlActivity", "Recipe or RecipeDetails is null")
+                        Toast.makeText(
+                            this@UploadUrlActivity,
+                            "레시피 정보를 받을 수 없습니다.",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 } else {
-                    Toast.makeText(this@UploadUrlActivity, "업로드 실패: ${response.code()}", Toast.LENGTH_SHORT).show()
+                    Log.e("UploadUrlActivity", "Response failed with code: ${response.code()}")
+                    Toast.makeText(
+                        this@UploadUrlActivity,
+                        "업로드 실패: ${response.code()}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
             override fun onFailure(call: Call<YouTubeRecipeDetailsResponse>, t: Throwable) {
                 progressBar.visibility = View.GONE // ProgressBar 숨기기
-                Toast.makeText(this@UploadUrlActivity, "에러 발생: ${t.message}", Toast.LENGTH_SHORT).show()
+                Log.e("UploadUrlActivity", "Request failed: ${t.message}")
+                Toast.makeText(
+                    this@UploadUrlActivity,
+                    "에러 발생: ${t.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         })
     }
