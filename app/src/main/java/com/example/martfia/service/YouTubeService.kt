@@ -12,5 +12,5 @@ interface YouTubeService {
     @POST("api/youtube")
     fun uploadYouTubeUrl(
         @Body request: YouTubeRequest
-    ): Call<YouTubeRecipeDetailsResponse>
+    ): Call<Void>
 }

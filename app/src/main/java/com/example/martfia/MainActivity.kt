@@ -21,11 +21,11 @@ class MainActivity : AppCompatActivity() {
 
         // 레시피 더미 데이터
         val recipeList = listOf(
-            Recipe("샐러드 파스타", "https://via.placeholder.com/150", "10 minutes"),
-            Recipe("참치 볶음밥", "https://via.placeholder.com/150", "15 minutes"),
-            Recipe("연어 포케", "https://via.placeholder.com/150", "20 minutes"),
-            Recipe("김치찌개", "https://via.placeholder.com/150", "30 minutes"),
-            Recipe("김밥", "https://via.placeholder.com/150", "25 minutes")
+            Recipe("샐러드 파스타", R.drawable.salad, "10 minutes"),
+            Recipe("참치 볶음밥", R.drawable.tuna, "15 minutes"),
+            Recipe("연어 포케", R.drawable.salad, "20 minutes"),
+            Recipe("김치찌개", R.drawable.salad, "30 minutes"),
+            Recipe("김밥", R.drawable.salad, "25 minutes")
         )
 
 

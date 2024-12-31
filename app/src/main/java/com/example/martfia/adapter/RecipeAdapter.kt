@@ -30,7 +30,7 @@ class RecipeAdapter(private val recipeList: List<Recipe>) :
 
         // Glide로 이미지 로드
         Glide.with(holder.itemView.context)
-            .load(currentRecipe.imageUrl)
+            .load(currentRecipe.imageResId)
             .into(holder.recipeImage)
 
         holder.recipeName.text = currentRecipe.name
