@@ -55,6 +55,32 @@
 
 <br>
 
+ ## 🖥️ 주요 화면 구성
+
+<table>
+  <tr>
+    <th>레시피 추천 방식 선택 화면</th>
+    <th>재료 사진 업로드 화면</th>
+    <th>재료 인식 화면</th>
+  </tr>
+  <tr>
+    <td align="center"><img src="https://github.com/user-attachments/assets/cbfcc29a-9d11-4d27-98f9-4b1c38a76d00"  width="250"></td>
+    <td align="center"><img src="https://github.com/user-attachments/assets/96527b8b-b994-4bf8-a6db-6c932a748004"  width="250"></td>
+    <td align="center"><img src="https://github.com/user-attachments/assets/494b8f62-fe38-4a93-ae50-3606ca9bf887"  width="250"></td>
+  </tr>
+  <tr>
+    <th>레시피 추천 화면</th>
+    <th>추천 레시피 디테일 화면</th>
+    <th>조리 어시스턴트 화면</th>
+  </tr>
+  <tr>
+    <td align="center"><img src="https://github.com/user-attachments/assets/32697126-529f-4023-8ddd-814379a85ad7"  width="250"></td>
+    <td align="center"><img src="https://github.com/user-attachments/assets/f22da4d4-5f8b-40aa-a126-b516f8870391"  width="250"></td>
+    <td align="center"><img src="https://github.com/user-attachments/assets/28a8cd33-af18-4fce-9a9d-48529f8ff905"  width="250"></td>
+  </tr>
+</table>
+<br>
+
 ## 📂 시스템 아키텍쳐
 ![image](https://github.com/user-attachments/assets/7d45033b-6256-4bd5-b5db-6ceac87a5a4c)    
 <br>
